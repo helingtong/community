@@ -1,6 +1,7 @@
 package com.nowcoder.community.controller;
 
 import com.nowcoder.community.service.AlphaService;
+import com.nowcoder.community.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,9 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.jws.WebParam;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -134,5 +133,46 @@ public List<Map<String, Object>> getEmps(){
 
     list.add(emp);
     return list;
+    }
+//    cookie示例
+    @RequestMapping(path = "/cookie/set",method = RequestMethod.GET)
+    @ResponseBody
+    public String setCookie(HttpServletResponse response){
+        Cookie cookie = new Cookie("code", CommunityUtil.generateUUID());// 设置cookie生效的范围 cookie需要指定访问的路径
+        cookie.setPath("community/alpha"); //声明在哪些路径下有效
+        cookie.setMaxAge(60 * 10); // 设置cookie的生存时间
+        // 发送cookie
+        response.addCookie(cookie);
+        return "set cookie";
+    }
+    @RequestMapping(path = "/cookie/get",method = RequestMethod.GET)
+    @ResponseBody
+    public String getCookie (@CookieValue("code") String code){
+        System.out.println(code);
+        return "get cookie";
+    }
+    @RequestMapping(path = "/session/set",method = RequestMethod.GET)
+    @ResponseBody
+    public String setSession(HttpSession session){
+        //setSession spring会自动注入 session可以存很多类型的数据
+        session.setAttribute("id",1);
+        session.setAttribute("name","Test");
+        return "set session";
+    }
+
+    @RequestMapping(path = "/session/get",method = RequestMethod.GET)
+    @ResponseBody
+    public String getSession(HttpSession session){
+        System.out.println(session.getAttribute("id"));
+        System.out.println(session.getAttribute("name"));
+        return "get session";
+    }
+//    ajax示例 异步请求返回的是字符串
+    @RequestMapping(path="/ajax",method = RequestMethod.POST)
+    @ResponseBody
+    public String testAjax(String name,int age){
+        System.out.println(name);
+        System.out.println(age);
+        return CommunityUtil.getJSONString(0,"操作成功");
     }
 }
